@@ -96,6 +96,9 @@
 
       that.enforceFocus()
 
+      var e = $.Event('modal:shown', { relatedTarget: _relatedTarget })
+      that.$element.trigger(e)
+
       var e = $.Event('shown.bs.modal', { relatedTarget: _relatedTarget })
 
       transition ?

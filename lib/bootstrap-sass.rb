@@ -4,7 +4,15 @@ module Bootstrap
     # Inspired by Kaminari
     def load!
       register_compass_extension if compass?
-      register_rails_engine      if rails?
+
+      if rails?
+        register_rails_engine
+      elsif lotus?
+        register_lotus
+      elsif sprockets?
+        register_sprockets
+      end
+
       configure_sass
     end
 
@@ -30,16 +38,20 @@ module Bootstrap
     end
 
     # Environment detection helpers
-    def asset_pipeline?
+    def sprockets?
       defined?(::Sprockets)
     end
 
     def compass?
-      defined?(::Compass)
+      defined?(::Compass::Frameworks)
     end
 
     def rails?
       defined?(::Rails)
+    end
+
+    def lotus?
+      defined?(::Lotus)
     end
 
     private
@@ -49,8 +61,8 @@ module Bootstrap
 
       ::Sass.load_paths << stylesheets_path
 
-      # bootstrap requires minimum precision of 10, see https://github.com/twbs/bootstrap-sass/issues/409
-      ::Sass::Script::Number.precision = [10, ::Sass::Script::Number.precision].max
+      # bootstrap requires minimum precision of 8, see https://github.com/twbs/bootstrap-sass/issues/409
+      ::Sass::Script::Number.precision = [8, ::Sass::Script::Number.precision].max
     end
 
     def register_compass_extension
@@ -65,6 +77,16 @@ module Bootstrap
 
     def register_rails_engine
       require 'bootstrap-sass/engine'
+    end
+
+    def register_lotus
+      Lotus::Assets.sources << assets_path
+    end
+
+    def register_sprockets
+      Sprockets.append_path(stylesheets_path)
+      Sprockets.append_path(fonts_path)
+      Sprockets.append_path(javascripts_path)
     end
   end
 end
